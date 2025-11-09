@@ -4,12 +4,12 @@
 
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p)
+    : AudioProcessorEditor (&p), processorRef (p), attOutputGain(p.getProcessorValueTreeState(), DelayParameters::paramIdOutputGain, sldrOutputGain)
 {
     juce::ignoreUnused (processorRef);
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    setSize (400, 600);
 
     // Add + configure child components
     addAndMakeVisible(sldrOutputGain);
@@ -17,7 +17,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     sldrOutputGain.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     sldrOutputGain.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, EditorDefaults::DEFAULT_SLIDER_TBOX_READONLY, EditorDefaults::DEFAULT_SLIDER_TBOX_WIDTH, EditorDefaults::DEFAULT_SLIDER_TBOX_HEIGHT);
-    sldrOutputGain.setRange(EditorDefaults::DEFAULT_SLIDER_MIN, EditorDefaults::DEFAULT_SLIDER_MAX, EditorDefaults::DEFAULT_SLIDER_STEP);
+    sldrOutputGain.setRange(DelayParameters::minOutputGain, DelayParameters::maxOutputGain, DelayParameters::defaultSliderStep);
     sldrOutputGain.setTextValueSuffix("dB");
     lblOutputGain.setText("Output Gain", juce::NotificationType::dontSendNotification);
     lblOutputGain.attachToComponent(&sldrOutputGain, true);

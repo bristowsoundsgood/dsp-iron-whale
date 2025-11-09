@@ -10,7 +10,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ), state(*this, nullptr, "parameters", createParameters())
 {
 }
 
@@ -86,9 +86,10 @@ void AudioPluginAudioProcessor::changeProgramName (int index, const juce::String
 //==============================================================================
 void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
     juce::ignoreUnused (sampleRate, samplesPerBlock);
+
+    // One DSP object per output channel
+    gainDsps.resize(getTotalNumOutputChannels());
 }
 
 void AudioPluginAudioProcessor::releaseResources()
@@ -130,26 +131,19 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
+    // Clears any output channels that do not contain input data. Prevents screaming feedback.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
+    const int blockSize = buffer.getNumSamples();
+    const std::atomic<float>* outputGain  = state.getRawParameterValue(DelayParameters::paramIdOutputGain);
+
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
+        gainDsps[channel].setGain(*outputGain);
+        gainDsps[channel].processBlock(channelData, blockSize);
         juce::ignoreUnused (channelData);
-        // ..do something to the data...
     }
 }
 
@@ -181,8 +175,22 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
 }
 
 //==============================================================================
-// This creates new instances of the plugin..
+// This creates new instances of the plugin.
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new AudioPluginAudioProcessor();
 }
+
+juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::createParameters()
+{
+    return {
+        std::make_unique<juce::AudioParameterFloat>(DelayParameters::paramIdOutputGain, DelayParameters::paramNameOutputGain,
+            DelayParameters::minOutputGain, DelayParameters::maxOutputGain, DelayParameters::defaultOutputGain)
+    };
+}
+
+juce::AudioProcessorValueTreeState& AudioPluginAudioProcessor::getProcessorValueTreeState()
+{
+    return state;
+}
+

@@ -33,6 +33,8 @@ set(SourceFiles
         Source/PluginEditor.h
         Source/PluginProcessor.cpp
         Source/PluginProcessor.h
+        Source/OutputGainDSP.cpp
+        Source/OutputGainDSP.h
 )
 
 # Change these to your own preferences

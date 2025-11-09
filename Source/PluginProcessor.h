@@ -1,6 +1,19 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "OutputGainDSP.h"
+
+namespace DelayParameters
+{
+    static constexpr float defaultSliderStep {0.01f};
+
+    static constexpr float minOutputGain {-64.0f};
+    static constexpr float maxOutputGain {24.0f};
+    static constexpr float defaultOutputGain {0.0f};
+    static const juce::String paramIdOutputGain {"outputGain"};
+    static const juce::String paramNameOutputGain {"Output Gain"};
+
+}
 
 //==============================================================================
 class AudioPluginAudioProcessor final : public juce::AudioProcessor
@@ -39,10 +52,18 @@ public:
     void changeProgramName (int index, const juce::String& newName) override;
 
     //==============================================================================
+    [[nodiscard]] juce::AudioProcessorValueTreeState& getProcessorValueTreeState();
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
 private:
+    // DSP objects. One for each channel.
+    std::vector<OutputGainDSP> gainDsps {};
+
+    // State Management
+    juce::AudioProcessorValueTreeState state;
+    [[nodiscard]] juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };

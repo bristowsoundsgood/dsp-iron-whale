@@ -6,9 +6,6 @@
 //==============================================================================
 namespace EditorDefaults
 {
-    static constexpr float DEFAULT_SLIDER_MIN {0.0f};
-    static constexpr float DEFAULT_SLIDER_MAX {24.0f};
-    static constexpr float DEFAULT_SLIDER_STEP {0.01f};
     static constexpr int DEFAULT_SLIDER_WIDTH {150};
     static constexpr int DEFAULT_SLIDER_HEIGHT {150};
     static constexpr int DEFAULT_SLIDER_TBOX_WIDTH {70};
@@ -35,6 +32,8 @@ private:
     juce::Slider sldrOutputGain;
     juce::Label lblOutputGain;
 
+    // Parameter attachments
+    juce::AudioProcessorValueTreeState::SliderAttachment attOutputGain;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };
