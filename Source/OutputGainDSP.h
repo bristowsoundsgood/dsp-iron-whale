@@ -8,13 +8,13 @@
 class OutputGainDSP
 {
 public:
-    void processBlock(float* block, int blockSize);
+    void processBlock(float* block, int blockSize) const;
 
     // Getters / Setters
-    [[nodiscard]] float getGain() const { return m_gain; };
-    void setGain(const float newGain) { m_gain = newGain; };
+    [[nodiscard]] float getGainDB() const { return m_gainDB; };
+    void setGainDB(const float newGainDB) { m_gainDB = newGainDB; };
 private:
-    float m_gain {};
+    float m_gainDB {};
     float m_sampleRate {};
 };
 

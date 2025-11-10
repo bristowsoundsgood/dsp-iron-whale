@@ -117,7 +117,6 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
         return false;
    #endif
-
     return true;
   #endif
 }
@@ -141,7 +140,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
-        gainDsps[channel].setGain(*outputGain);
+        gainDsps[channel].setGainDB(*outputGain);
         gainDsps[channel].processBlock(channelData, blockSize);
         juce::ignoreUnused (channelData);
     }
