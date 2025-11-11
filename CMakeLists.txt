@@ -33,8 +33,8 @@ set(SourceFiles
         Source/PluginEditor.h
         Source/PluginProcessor.cpp
         Source/PluginProcessor.h
-        Source/OutputGainDSP.cpp
-        Source/OutputGainDSP.h
+        Source/GainDSP.cpp
+        Source/GainDSP.h
 )
 
 # Change these to your own preferences
@@ -47,7 +47,7 @@ juce_add_plugin(${PROJECT_NAME}
         EDITOR_WANTS_KEYBOARD_FOCUS FALSE
         JUCE_VST3_CAN_REPLACE_VST2 FALSE
         COPY_PLUGIN_AFTER_BUILD TRUE
-        PLUGIN_MANUFACTURER_CODE BSG
+        PLUGIN_MANUFACTURER_CODE BSGX
         PLUGIN_CODE Del1
         FORMATS VST3 AU Standalone
         PRODUCT_NAME "BSGDelay"

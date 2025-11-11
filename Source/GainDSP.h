@@ -2,13 +2,15 @@
 // Created by Joe on 09/11/2025.
 //
 
-#ifndef BSGDELAY_OUTPUTGAINDSP_H
-#define BSGDELAY_OUTPUTGAINDSP_H
+#ifndef BSGDELAY_GAINDSP_H
+#define BSGDELAY_GAINDSP_H
 
-class OutputGainDSP
+class GainDSP
 {
 public:
     void processBlock(float* block, int blockSize) const;
+
+    float dBToAmplitude(float dB) const;
 
     // Getters / Setters
     [[nodiscard]] float getGainDB() const { return m_gainDB; };
@@ -19,4 +21,4 @@ private:
 };
 
 
-#endif //BSGDELAY_OUTPUTGAINDSP_H
+#endif //BSGDELAY_GAINDSP_H

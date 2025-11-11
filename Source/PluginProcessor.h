@@ -1,7 +1,7 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
-#include "OutputGainDSP.h"
+#include "GainDSP.h"
 
 namespace DelayParameters
 {
@@ -58,7 +58,7 @@ public:
 
 private:
     // DSP objects. One for each channel.
-    std::vector<OutputGainDSP> gainDsps {};
+    std::vector<GainDSP> gainDsps {};
 
     // State Management
     juce::AudioProcessorValueTreeState state;
