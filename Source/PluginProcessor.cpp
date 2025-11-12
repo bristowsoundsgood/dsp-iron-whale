@@ -6,10 +6,10 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
      : AudioProcessor (BusesProperties()
                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                       ), state(*this, nullptr, "parameters", createParameters())
+                       ), stateManager(*this, nullptr, "parameters", createParameters())
 {
     // Save memory - retrieve parameter pointers before any processing
-    auto* p = state.getParameter(DelayParameters::paramIDOutputGain.getParamID());
+    auto* p = stateManager.getParameter(DelayParameters::paramIDOutputGain.getParamID());
     paramOutputGain = dynamic_cast<juce::AudioParameterFloat*>(p);
     jassert(paramOutputGain);
 }
@@ -160,17 +160,16 @@ juce::AudioProcessorEditor* AudioPluginAudioProcessor::createEditor()
 //==============================================================================
 void AudioPluginAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
-    juce::ignoreUnused (destData);
+    copyXmlToBinary(*stateManager.copyState().createXml(), destData);
 }
 
-void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void AudioPluginAudioProcessor::setStateInformation (const void* data, const int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
-    juce::ignoreUnused (data, sizeInBytes);
+    const std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
+    if (xml.get() != nullptr && xml->hasTagName(stateManager.state.getType()))
+    {
+        stateManager.replaceState(juce::ValueTree::fromXml(*xml));
+    }
 }
 
 //==============================================================================
@@ -190,6 +189,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
 
 juce::AudioProcessorValueTreeState& AudioPluginAudioProcessor::getProcessorValueTreeState()
 {
-    return state;
+    return stateManager;
 }
 

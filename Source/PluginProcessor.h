@@ -64,7 +64,7 @@ private:
     juce::AudioParameterFloat* paramOutputGain {};
 
     // State Management
-    juce::AudioProcessorValueTreeState state;
+    juce::AudioProcessorValueTreeState stateManager;
     [[nodiscard]] juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
 
     //==============================================================================
