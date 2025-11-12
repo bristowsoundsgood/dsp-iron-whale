@@ -10,7 +10,7 @@ namespace DelayParameters
     static constexpr float minOutputGain {-64.0f};
     static constexpr float maxOutputGain {24.0f};
     static constexpr float defaultOutputGain {0.0f};
-    static const juce::String paramIdOutputGain {"outputGain"};
+    static const juce::ParameterID paramIDOutputGain {"outputGain", 1};
     static const juce::String paramNameOutputGain {"Output Gain"};
 
 }
@@ -59,6 +59,9 @@ public:
 private:
     // DSP objects. One for each channel.
     std::vector<GainDSP> gainDsps {};
+
+    // Parameter pointers
+    std::atomic<float>* paramOutputGain {};
 
     // State Management
     juce::AudioProcessorValueTreeState state;

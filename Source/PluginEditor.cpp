@@ -4,7 +4,7 @@
 
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p), attOutputGain(p.getProcessorValueTreeState(), DelayParameters::paramIdOutputGain, sldrOutputGain)
+    : AudioProcessorEditor (&p), processorRef (p), attOutputGain(p.getProcessorValueTreeState(), DelayParameters::paramIDOutputGain.getParamID(), sldrOutputGain)
 {
     juce::ignoreUnused (processorRef);
     // Make sure that before the constructor has finished, you've set the

@@ -90,6 +90,9 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 
     // One DSP object per output channel
     gainDsps.resize(getTotalNumOutputChannels());
+
+    // Save memory - retrieve parameter pointers before processing
+    paramOutputGain = state.getRawParameterValue(DelayParameters::paramIDOutputGain.getParamID());
 }
 
 void AudioPluginAudioProcessor::releaseResources()
@@ -135,12 +138,12 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         buffer.clear (i, 0, buffer.getNumSamples());
 
     const int blockSize = buffer.getNumSamples();
-    const std::atomic<float>* outputGain  = state.getRawParameterValue(DelayParameters::paramIdOutputGain);
+    const float outputGain = paramOutputGain->load();
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
-        gainDsps[channel].setGainDB(*outputGain);
+        gainDsps[channel].setGainDB(outputGain);
         gainDsps[channel].processBlock(channelData, blockSize);
         juce::ignoreUnused (channelData);
     }
@@ -183,7 +186,7 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::createParameters()
 {
     return {
-        std::make_unique<juce::AudioParameterFloat>(DelayParameters::paramIdOutputGain, DelayParameters::paramNameOutputGain,
+        std::make_unique<juce::AudioParameterFloat>(DelayParameters::paramIDOutputGain, DelayParameters::paramNameOutputGain,
             DelayParameters::minOutputGain, DelayParameters::maxOutputGain, DelayParameters::defaultOutputGain)
     };
 }
