@@ -8,7 +8,7 @@
 class GainDSP
 {
 public:
-    float dBToLinearCoefficient(float dB) const;
+    static float dBToLinearCoefficient(float dB);
     void processBlock(float* block, int blockSize) const;
 
     // Getters / Setters

@@ -18,7 +18,6 @@ void PluginParameters::prepare(const double sampleRate) noexcept
 
 void PluginParameters::reset() noexcept
 {
-    *m_paramOutGain = PluginConfig::defaultOutGain;
     m_smootherGain.setCurrentAndTargetValue(m_paramOutGain->get());
 }
 
