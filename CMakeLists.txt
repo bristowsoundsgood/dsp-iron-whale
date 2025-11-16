@@ -35,6 +35,8 @@ set(SourceFiles
         Source/PluginProcessor.h
         Source/GainDSP.cpp
         Source/GainDSP.h
+        Source/PluginParameters.cpp
+        Source/PluginParameters.h
 )
 
 # Change these to your own preferences

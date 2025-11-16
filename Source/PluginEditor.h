@@ -1,11 +1,14 @@
 #pragma once
 
 #include "PluginProcessor.h"
+#include "PluginParameters.h"
 #include <juce_gui_basics/juce_gui_basics.h>
 
 //==============================================================================
 namespace EditorDefaults
 {
+    static constexpr int DEFAULT_WINDOW_WIDTH {400};
+    static constexpr int DEFAULT_WINDOW_HEIGHT {600};
     static constexpr int DEFAULT_SLIDER_WIDTH {150};
     static constexpr int DEFAULT_SLIDER_HEIGHT {150};
     static constexpr int DEFAULT_SLIDER_TBOX_WIDTH {70};
@@ -29,11 +32,11 @@ private:
     AudioPluginAudioProcessor& processorRef;
 
     // Declare child components
-    juce::Slider sldrOutputGain;
-    juce::Label lblOutputGain;
+    juce::Slider sldrOutGain;
+    juce::Label lblOutGain;
 
     // Parameter attachments
-    juce::AudioProcessorValueTreeState::SliderAttachment attOutputGain;
+    juce::AudioProcessorValueTreeState::SliderAttachment attOutGain;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };

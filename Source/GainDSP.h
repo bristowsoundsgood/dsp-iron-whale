@@ -8,16 +8,14 @@
 class GainDSP
 {
 public:
+    float dBToLinearCoefficient(float dB) const;
     void processBlock(float* block, int blockSize) const;
 
-    float dBToLinearCoefficient(float dB) const;
-
     // Getters / Setters
-    [[nodiscard]] float getGainDB() const { return m_gainDB; };
-    void setGainDB(const float newGainDB) { m_gainDB = newGainDB; };
+    [[nodiscard]] float getGainDB() const { return m_gainDB; }
+    void setGainDB(const float newGainDB) { m_gainDB = newGainDB; }
 private:
     float m_gainDB {};
-    float m_sampleRate {};
 };
 
 

@@ -1,17 +1,14 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "../../../../../../../../../../Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/CoreText.framework/Versions/A/Headers/CTFontDescriptor.h"
 
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
      : AudioProcessor (BusesProperties()
                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                       ), stateManager(*this, nullptr, "parameters", createParameters())
+                       ),  stateManager(*this, nullptr, "parameters", PluginParameters::createParameterLayout()), params(stateManager)
 {
-    // Save memory - retrieve parameter pointers before any processing
-    auto* p = stateManager.getParameter(DelayParameters::paramIDOutputGain.getParamID());
-    paramOutputGain = dynamic_cast<juce::AudioParameterFloat*>(p);
-    jassert(paramOutputGain);
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
@@ -88,6 +85,10 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 {
     juce::ignoreUnused (sampleRate, samplesPerBlock);
 
+    // Initialise parameter values (and smoothers)
+    params.prepare(sampleRate);
+    params.reset();
+
     // One DSP object per output channel
     gainDsps.resize(getTotalNumOutputChannels());
 }
@@ -134,14 +135,16 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    const int blockSize = buffer.getNumSamples();
-    const float outputGain = paramOutputGain->get();
+    // Before DSP...
+    params.update();
+    const float outputGain = params.getOutputGainValue();
 
+    // Process block of samples
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
         gainDsps[channel].setGainDB(outputGain);
-        gainDsps[channel].processBlock(channelData, blockSize);
+        gainDsps[channel].processBlock(channelData, buffer.getNumSamples());
         juce::ignoreUnused (channelData);
     }
 }
@@ -177,14 +180,6 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, const int
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new AudioPluginAudioProcessor();
-}
-
-juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::createParameters()
-{
-    return {
-        std::make_unique<juce::AudioParameterFloat>(DelayParameters::paramIDOutputGain, DelayParameters::paramNameOutputGain,
-            DelayParameters::minOutputGain, DelayParameters::maxOutputGain, DelayParameters::defaultOutputGain)
-    };
 }
 
 juce::AudioProcessorValueTreeState& AudioPluginAudioProcessor::getProcessorValueTreeState()

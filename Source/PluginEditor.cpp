@@ -4,23 +4,23 @@
 
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p), attOutputGain(p.getProcessorValueTreeState(), DelayParameters::paramIDOutputGain.getParamID(), sldrOutputGain)
+    : AudioProcessorEditor (&p), processorRef (p), attOutGain(p.getProcessorValueTreeState(), PluginConfig::paramIDOutGain.getParamID(), sldrOutGain)
 {
     juce::ignoreUnused (processorRef);
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 600);
+    setSize (EditorDefaults::DEFAULT_WINDOW_WIDTH, EditorDefaults::DEFAULT_WINDOW_HEIGHT);
 
     // Add + configure child components
-    addAndMakeVisible(sldrOutputGain);
-    addAndMakeVisible(lblOutputGain);
+    addAndMakeVisible(sldrOutGain);
+    addAndMakeVisible(lblOutGain);
 
-    sldrOutputGain.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
-    sldrOutputGain.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, EditorDefaults::DEFAULT_SLIDER_TBOX_READONLY, EditorDefaults::DEFAULT_SLIDER_TBOX_WIDTH, EditorDefaults::DEFAULT_SLIDER_TBOX_HEIGHT);
-    sldrOutputGain.setRange(DelayParameters::minOutputGain, DelayParameters::maxOutputGain, DelayParameters::defaultSliderStep);
-    sldrOutputGain.setTextValueSuffix("dB");
-    lblOutputGain.setText("Output Gain", juce::NotificationType::dontSendNotification);
-    lblOutputGain.attachToComponent(&sldrOutputGain, true);
+    sldrOutGain.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
+    sldrOutGain.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, EditorDefaults::DEFAULT_SLIDER_TBOX_READONLY, EditorDefaults::DEFAULT_SLIDER_TBOX_WIDTH, EditorDefaults::DEFAULT_SLIDER_TBOX_HEIGHT);
+    sldrOutGain.setRange(PluginConfig::minOutGain, PluginConfig::maxOutGain, PluginConfig::defaultSliderStep);
+    sldrOutGain.setTextValueSuffix("dB");
+    lblOutGain.setText("Output Gain", juce::NotificationType::dontSendNotification);
+    lblOutGain.attachToComponent(&sldrOutGain, true);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -39,9 +39,9 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 
 void AudioPluginAudioProcessorEditor::resized()
 {
-    juce::Rectangle<int> bounds = getLocalBounds();
+    const juce::Rectangle<int> bounds = getLocalBounds();
 
     // Lay out child components
-    sldrOutputGain.setBounds(bounds.getCentreX() - EditorDefaults::DEFAULT_SLIDER_WIDTH / 2, bounds.getCentreY() - EditorDefaults::DEFAULT_SLIDER_HEIGHT / 2,
+    sldrOutGain.setBounds(bounds.getCentreX() - EditorDefaults::DEFAULT_SLIDER_WIDTH / 2, bounds.getCentreY() - EditorDefaults::DEFAULT_SLIDER_HEIGHT / 2,
                              EditorDefaults::DEFAULT_SLIDER_WIDTH, EditorDefaults::DEFAULT_SLIDER_HEIGHT);
 }
