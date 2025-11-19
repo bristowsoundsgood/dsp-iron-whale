@@ -1,13 +1,11 @@
+###### PROJECT CONFIG ######
 cmake_minimum_required(VERSION 3.24)
-
-# Change to your project name
 project(BSGDelay VERSION 0.0.1)
-
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_XCODE_GENERATE_SCHEME OFF)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+###### PACKAGE MANAGEMENT ######
 # We're going to use CPM as our package manager to bring in JUCE
 # Check to see if we have CPM installed already.  Bring it in if we don't.
 set(CPM_DOWNLOAD_VERSION 0.34.0)
@@ -22,24 +20,47 @@ include(${CPM_DOWNLOAD_LOCATION})
 
 # Bring in JUCE locally
 CPMAddPackage(
-    NAME juce
-    GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
-    GIT_TAG origin/master
+        NAME juce
+        GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
+        GIT_TAG origin/master
 )
 
-# Make sure you include any new source files here
+###### SET UP SOURCE FILES + LIBRARIES ######
 set(SourceFiles
         Source/PluginEditor.cpp
         Source/PluginEditor.h
         Source/PluginProcessor.cpp
         Source/PluginProcessor.h
+)
+
+add_library(BSGDelay_Core STATIC
+        Source/CircularBuffer.cpp
+        Source/CircularBuffer.h
+        Source/DelayDSP.cpp
+        Source/DelayDSP.h
         Source/GainDSP.cpp
         Source/GainDSP.h
         Source/PluginParameters.cpp
         Source/PluginParameters.h
 )
 
-# Change these to your own preferences
+target_link_libraries(BSGDelay_Core PRIVATE
+        juce::juce_analytics
+        juce::juce_audio_basics
+        juce::juce_audio_devices
+        juce::juce_core
+        juce::juce_data_structures
+        juce::juce_graphics
+        juce::juce_gui_basics
+        juce::juce_gui_extra
+        juce::juce_audio_utils
+        juce::juce_dsp
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_lto_flags
+        juce::juce_recommended_warning_flags
+)
+
+###### JUCE PLUGIN CONFIG ######
 juce_add_plugin(${PROJECT_NAME}
         COMPANY_NAME bristowsoundsgood
         IS_SYNTH FALSE
@@ -63,7 +84,7 @@ target_sources(${PROJECT_NAME} PRIVATE ${SourceFiles})
 
 # These are some toggleable options from the JUCE CMake API
 target_compile_definitions(${PROJECT_NAME}
-    PUBLIC
+        PUBLIC
         JUCE_WEB_BROWSER=0
         JUCE_USE_CURL=0
         JUCE_VST3_CAN_REPLACE_VST2=0
@@ -72,6 +93,25 @@ target_compile_definitions(${PROJECT_NAME}
 # JUCE libraries to bring into our project
 target_link_libraries(${PROJECT_NAME}
         PUBLIC
+        BSGDelay_Core
+)
+
+###### SET UP TESTING EXECUTABLES ######
+Include(FetchContent)
+
+FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG        v3.8.1 # or a later release
+)
+
+FetchContent_MakeAvailable(Catch2)
+
+add_executable(BSGDelayTest Tests/CircularBufferTest.cpp)
+
+target_link_libraries(BSGDelayTest PRIVATE
+        Catch2::Catch2WithMain
+        BSGDelay_Core
         juce::juce_analytics
         juce::juce_audio_basics
         juce::juce_audio_devices
@@ -87,3 +127,6 @@ target_link_libraries(${PROJECT_NAME}
         juce::juce_recommended_warning_flags
 )
 
+include(CTest)
+include(Catch)
+catch_discover_tests(BSGDelayTest)

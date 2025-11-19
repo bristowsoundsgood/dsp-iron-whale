@@ -11,11 +11,18 @@ namespace PluginConfig
 {
     // Parameter settings
     static constexpr float defaultSliderStep {0.01f};
+
     static constexpr float minOutGain {-64.0f};
     static constexpr float maxOutGain {24.0f};
     static constexpr float defaultOutGain {0.0f};
     static const juce::ParameterID paramIDOutGain {"outputGain", 1};
     static const juce::String paramNameOutGain {"Output Gain"};
+
+    static constexpr float minFeedback {0.0f};
+    static constexpr float maxFeedback {2.0f};
+    static constexpr float defaultFeedback {0.0f};
+    static const juce::ParameterID paramIDFeedback {"delayFeedback", 1};
+    static const juce::String paramNameFeedback {"Delay Feedback"};
 
     // SmoothedValue settings
     static constexpr float rampOutGain {0.001f};
@@ -32,6 +39,7 @@ public:
 
     // Accessor methods
     [[nodiscard]] float getOutputGainValue() { return m_smootherGain.getNextValue(); }
+    [[nodiscard]] float getDelayTime() const { return m_paramDelayTime->get(); }
 
     // Parameter smoothing methods
     void prepare(double sampleRate) noexcept;
@@ -40,6 +48,7 @@ public:
 
 private:
     juce::AudioParameterFloat* m_paramOutGain {};
+    juce::AudioParameterFloat* m_paramDelayTime {};
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> m_smootherGain {};
 };
 

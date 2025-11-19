@@ -7,19 +7,21 @@
 //==============================================================================
 namespace EditorDefaults
 {
-    static constexpr int DEFAULT_WINDOW_WIDTH {400};
-    static constexpr int DEFAULT_WINDOW_HEIGHT {600};
-    static constexpr int DEFAULT_SLIDER_WIDTH {150};
-    static constexpr int DEFAULT_SLIDER_HEIGHT {150};
-    static constexpr int DEFAULT_SLIDER_TBOX_WIDTH {70};
-    static constexpr int DEFAULT_SLIDER_TBOX_HEIGHT {30};
-    static constexpr bool DEFAULT_SLIDER_TBOX_READONLY {false};
-};
+    static constexpr int defaultWindowWidth {400};
+    static constexpr int defaultWindowHeight {600};
+    static constexpr int defaultSliderWidth {150};
+    static constexpr int defaultSliderHeight {150};
+    static constexpr int defaultSliderTextBoxWidth {70};
+    static constexpr int defaultSliderTextBoxHeight {30};
+    static constexpr bool defaultSliderTextBoxReadOnly {false};
+
+    static constexpr int sliderMarginY {200};
+}
 
 class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor
 {
 public:
-    explicit AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor&);
+    explicit AudioPluginAudioProcessorEditor (DelayPluginProcessor&);
     ~AudioPluginAudioProcessorEditor() override;
 
     //==============================================================================
@@ -29,14 +31,17 @@ public:
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    AudioPluginAudioProcessor& processorRef;
+    DelayPluginProcessor& processorRef;
 
     // Declare child components
     juce::Slider sldrOutGain;
     juce::Label lblOutGain;
+    juce::Slider sldrFeedback;
+    juce::Label lblFeedback;
 
     // Parameter attachments
     juce::AudioProcessorValueTreeState::SliderAttachment attOutGain;
+    juce::AudioProcessorValueTreeState::SliderAttachment attFeedback;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };

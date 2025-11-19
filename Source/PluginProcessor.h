@@ -2,15 +2,17 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "GainDSP.h"
+#include "DelayDSP.h"
+#include "CircularBuffer.h"
 #include "PluginParameters.h"
 
 //==============================================================================
-class AudioPluginAudioProcessor final : public juce::AudioProcessor
+class DelayPluginProcessor final : public juce::AudioProcessor
 {
 public:
     //==============================================================================
-    AudioPluginAudioProcessor();
-    ~AudioPluginAudioProcessor() override;
+    DelayPluginProcessor();
+    ~DelayPluginProcessor() override;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -46,15 +48,14 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
 private:
-    // DSP objects. One for each channel.
     std::vector<GainDSP> gainDsps {};
+    std::vector<DelayDSP> delayDsps;
+    CircularBuffer delayBuffer {};
 
     // State Management
     juce::AudioProcessorValueTreeState stateManager;
-
-    // Plugin parameters
     PluginParameters params;
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DelayPluginProcessor)
 };

@@ -1,0 +1,5 @@
+if(EXISTS "/Users/joebristow/Desktop/CS/Software Engineering/Mid-Level/DSP/Projects/dsp-iron-whale/cmake-build-debug-event-trace/BSGDelayTest-b12d07c_tests.cmake")
+  include("/Users/joebristow/Desktop/CS/Software Engineering/Mid-Level/DSP/Projects/dsp-iron-whale/cmake-build-debug-event-trace/BSGDelayTest-b12d07c_tests.cmake")
+else()
+  add_test(BSGDelayTest_NOT_BUILT-b12d07c BSGDelayTest_NOT_BUILT-b12d07c)
+endif()

@@ -1,26 +1,37 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include <juce_gui_basics/juce_gui_basics.h>
+#include <juce_gui_basics/juce_gui_basics.h>
 
 //==============================================================================
-AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p), attOutGain(p.getProcessorValueTreeState(), PluginConfig::paramIDOutGain.getParamID(), sldrOutGain)
+AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (DelayPluginProcessor& p)
+    : AudioProcessorEditor (&p), processorRef (p), attOutGain(p.getProcessorValueTreeState(), PluginConfig::paramIDOutGain.getParamID(), sldrOutGain),
+        attFeedback(p.getProcessorValueTreeState(), PluginConfig::paramIDFeedback.getParamID(), sldrFeedback)
 {
     juce::ignoreUnused (processorRef);
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (EditorDefaults::DEFAULT_WINDOW_WIDTH, EditorDefaults::DEFAULT_WINDOW_HEIGHT);
+    setSize (EditorDefaults::defaultWindowWidth, EditorDefaults::defaultWindowHeight);
 
     // Add + configure child components
     addAndMakeVisible(sldrOutGain);
     addAndMakeVisible(lblOutGain);
+    addAndMakeVisible(sldrFeedback);
+    addAndMakeVisible(lblFeedback);
 
     sldrOutGain.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
-    sldrOutGain.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, EditorDefaults::DEFAULT_SLIDER_TBOX_READONLY, EditorDefaults::DEFAULT_SLIDER_TBOX_WIDTH, EditorDefaults::DEFAULT_SLIDER_TBOX_HEIGHT);
+    sldrOutGain.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, EditorDefaults::defaultSliderTextBoxReadOnly, EditorDefaults::defaultSliderTextBoxWidth, EditorDefaults::defaultSliderTextBoxHeight);
     sldrOutGain.setRange(PluginConfig::minOutGain, PluginConfig::maxOutGain, PluginConfig::defaultSliderStep);
     sldrOutGain.setTextValueSuffix("dB");
-    lblOutGain.setText("Output Gain", juce::NotificationType::dontSendNotification);
+    lblOutGain.setText(PluginConfig::paramNameOutGain, juce::NotificationType::dontSendNotification);
     lblOutGain.attachToComponent(&sldrOutGain, true);
+
+    sldrFeedback.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
+    sldrFeedback.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, EditorDefaults::defaultSliderTextBoxReadOnly, EditorDefaults::defaultSliderTextBoxWidth, EditorDefaults::defaultSliderTextBoxHeight);
+    sldrFeedback.setRange(PluginConfig::minFeedback, PluginConfig::maxFeedback, PluginConfig::defaultSliderStep);
+    sldrFeedback.setTextValueSuffix("ms");
+    lblFeedback.setText(PluginConfig::paramNameFeedback, juce::NotificationType::dontSendNotification);
+    lblFeedback.attachToComponent(&sldrFeedback, true);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -42,6 +53,10 @@ void AudioPluginAudioProcessorEditor::resized()
     const juce::Rectangle<int> bounds = getLocalBounds();
 
     // Lay out child components
-    sldrOutGain.setBounds(bounds.getCentreX() - EditorDefaults::DEFAULT_SLIDER_WIDTH / 2, bounds.getCentreY() - EditorDefaults::DEFAULT_SLIDER_HEIGHT / 2,
-                             EditorDefaults::DEFAULT_SLIDER_WIDTH, EditorDefaults::DEFAULT_SLIDER_HEIGHT);
+
+    sldrFeedback.setBounds(bounds.getCentreX() - EditorDefaults::defaultSliderWidth / 2, bounds.getCentreY() - EditorDefaults::defaultSliderHeight / 2,
+                             EditorDefaults::defaultSliderWidth, EditorDefaults::defaultSliderHeight);
+
+    sldrOutGain.setBounds(bounds.getCentreX() - EditorDefaults::defaultSliderWidth / 2, (bounds.getCentreY() - EditorDefaults::defaultSliderHeight / 2) + EditorDefaults::sliderMarginY,
+        EditorDefaults::defaultSliderWidth, EditorDefaults::defaultSliderHeight);
 }

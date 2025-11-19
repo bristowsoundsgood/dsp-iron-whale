@@ -7,7 +7,8 @@
 PluginParameters::PluginParameters(const juce::AudioProcessorValueTreeState& stateManager)
 {
     // Store the memory addresses of each parameter object upon construction.
-    m_paramOutGain = dynamic_cast<juce::AudioParameterFloat*>(stateManager.getParameter(PluginConfig::paramIDOutGain.getParamID()));
+    m_paramOutGain = dynamic_cast<juce::AudioParameterFloat*> (stateManager.getParameter(PluginConfig::paramIDOutGain.getParamID()));
+    m_paramDelayTime = dynamic_cast<juce::AudioParameterFloat*> (stateManager.getParameter(PluginConfig::paramIDFeedback.getParamID()));
 }
 
 // Sets the sample rate and ramp time for the parameter smoothers
@@ -29,6 +30,7 @@ void PluginParameters::update() noexcept
 juce::AudioProcessorValueTreeState::ParameterLayout PluginParameters::createParameterLayout() noexcept
 {
     return {
-        std::make_unique<juce::AudioParameterFloat> (PluginConfig::paramIDOutGain, PluginConfig::paramNameOutGain, PluginConfig::minOutGain, PluginConfig::maxOutGain, PluginConfig::defaultOutGain)
+        std::make_unique<juce::AudioParameterFloat>(PluginConfig::paramIDOutGain, PluginConfig::paramNameOutGain, PluginConfig::minOutGain, PluginConfig::maxOutGain, PluginConfig::defaultOutGain),
+        std::make_unique<juce::AudioParameterFloat>(PluginConfig::paramIDFeedback, PluginConfig::paramNameFeedback, PluginConfig::minFeedback, PluginConfig::maxFeedback, PluginConfig::defaultFeedback)
     };
 }

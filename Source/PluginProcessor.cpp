@@ -1,9 +1,8 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-#include "../../../../../../../../../../Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/CoreText.framework/Versions/A/Headers/CTFontDescriptor.h"
 
 //==============================================================================
-AudioPluginAudioProcessor::AudioPluginAudioProcessor()
+DelayPluginProcessor::DelayPluginProcessor()
      : AudioProcessor (BusesProperties()
                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
@@ -11,17 +10,17 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 {
 }
 
-AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
+DelayPluginProcessor::~DelayPluginProcessor()
 {
 }
 
 //==============================================================================
-const juce::String AudioPluginAudioProcessor::getName() const
+const juce::String DelayPluginProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool AudioPluginAudioProcessor::acceptsMidi() const
+bool DelayPluginProcessor::acceptsMidi() const
 {
    #if JucePlugin_WantsMidiInput
     return true;
@@ -30,7 +29,7 @@ bool AudioPluginAudioProcessor::acceptsMidi() const
    #endif
 }
 
-bool AudioPluginAudioProcessor::producesMidi() const
+bool DelayPluginProcessor::producesMidi() const
 {
    #if JucePlugin_ProducesMidiOutput
     return true;
@@ -39,7 +38,7 @@ bool AudioPluginAudioProcessor::producesMidi() const
    #endif
 }
 
-bool AudioPluginAudioProcessor::isMidiEffect() const
+bool DelayPluginProcessor::isMidiEffect() const
 {
    #if JucePlugin_IsMidiEffect
     return true;
@@ -48,67 +47,68 @@ bool AudioPluginAudioProcessor::isMidiEffect() const
    #endif
 }
 
-double AudioPluginAudioProcessor::getTailLengthSeconds() const
+double DelayPluginProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int AudioPluginAudioProcessor::getNumPrograms()
+int DelayPluginProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
-int AudioPluginAudioProcessor::getCurrentProgram()
+int DelayPluginProcessor::getCurrentProgram()
 {
     return 0;
 }
 
-void AudioPluginAudioProcessor::setCurrentProgram (int index)
+void DelayPluginProcessor::setCurrentProgram (int index)
 {
     juce::ignoreUnused (index);
 }
 
-const juce::String AudioPluginAudioProcessor::getProgramName (int index)
+const juce::String DelayPluginProcessor::getProgramName (int index)
 {
     juce::ignoreUnused (index);
     return {};
 }
 
-void AudioPluginAudioProcessor::changeProgramName (int index, const juce::String& newName)
+void DelayPluginProcessor::changeProgramName (int index, const juce::String& newName)
 {
     juce::ignoreUnused (index, newName);
 }
 
 //==============================================================================
-void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void DelayPluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    juce::ignoreUnused (sampleRate, samplesPerBlock);
-
-    // Initialise parameter values (and smoothers)
+    // Parameters
     params.prepare(sampleRate);
     params.reset();
 
-    // One DSP object per output channel
+    // Buffers
+    const int delayBufferSize = static_cast<int>(sampleRate * 2.0); // 2 seconds long
+    delayBuffer.setSize(getTotalNumOutputChannels(), delayBufferSize);
+
+    // DSP objects. One per output channel
     gainDsps.resize(getTotalNumOutputChannels());
+    delayDsps.resize(getTotalNumOutputChannels(), {delayBuffer});
+
+    for (auto& d : delayDsps) d.prepare(sampleRate);
 }
 
-void AudioPluginAudioProcessor::releaseResources()
+void DelayPluginProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
 
-bool AudioPluginAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool DelayPluginProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
   #if JucePlugin_IsMidiEffect
     juce::ignoreUnused (layouts);
     return true;
   #else
-    // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
-    // Some plugin hosts, such as certain GarageBand versions, will only
-    // load plugins that support stereo bus layouts.
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
      && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
@@ -122,51 +122,59 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
   #endif
 }
 
-void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
+void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& audioBuffer,
                                               juce::MidiBuffer& midiMessages)
 {
     juce::ignoreUnused (midiMessages);
-
     juce::ScopedNoDenormals noDenormals;
+
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
+    const float blockSize = audioBuffer.getNumSamples();
 
     // Clears any output channels that do not contain input data. Prevents screaming feedback.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+    {
+        audioBuffer.clear (i, 0, audioBuffer.getNumSamples());
+    }
 
     // Before DSP...
     params.update();
-    const float outputGain = params.getOutputGainValue();
+    const float delayTime = params.getDelayTime();
+    const float outGain = params.getOutputGainValue();
 
-    // Process block of samples
+    // Process blocks of samples
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        auto* channelData = buffer.getWritePointer (channel);
-        gainDsps[channel].setGainDB(outputGain);
-        gainDsps[channel].processBlock(channelData, buffer.getNumSamples());
-        juce::ignoreUnused (channelData);
+        float* channelData = audioBuffer.getWritePointer (channel);
+        delayBuffer.processBlock(channel, audioBuffer, blockSize);
+
+        // delayDsps[channel].setDelayTime(delayTime);
+        // delayDsps[channel].processBlock(channel, channelData, blockSize);
+
+        gainDsps[channel].setGainDB(outGain);
+        gainDsps[channel].processBlock(channelData, blockSize);
     }
 }
 
 //==============================================================================
-bool AudioPluginAudioProcessor::hasEditor() const
+bool DelayPluginProcessor::hasEditor() const
 {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-juce::AudioProcessorEditor* AudioPluginAudioProcessor::createEditor()
+juce::AudioProcessorEditor* DelayPluginProcessor::createEditor()
 {
     return new AudioPluginAudioProcessorEditor (*this);
 }
 
 //==============================================================================
-void AudioPluginAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+void DelayPluginProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     copyXmlToBinary(*stateManager.copyState().createXml(), destData);
 }
 
-void AudioPluginAudioProcessor::setStateInformation (const void* data, const int sizeInBytes)
+void DelayPluginProcessor::setStateInformation (const void* data, const int sizeInBytes)
 {
     const std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
     if (xml.get() != nullptr && xml->hasTagName(stateManager.state.getType()))
@@ -179,10 +187,10 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, const int
 // This creates new instances of the plugin.
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new AudioPluginAudioProcessor();
+    return new DelayPluginProcessor();
 }
 
-juce::AudioProcessorValueTreeState& AudioPluginAudioProcessor::getProcessorValueTreeState()
+juce::AudioProcessorValueTreeState& DelayPluginProcessor::getProcessorValueTreeState()
 {
     return stateManager;
 }

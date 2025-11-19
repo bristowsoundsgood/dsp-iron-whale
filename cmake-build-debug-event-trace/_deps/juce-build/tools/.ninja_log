@@ -1,0 +1,15 @@
+# ninja log v6
+260	1004	1763566809735477539	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_graphics/juce_graphics_Sheenbidi.c.o	3e4ea70bdb2b98bd
+258	20804	1763566809733649041	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o	c4c8560981a3a58
+45945	46334	1763566682602863374	extras/Build/juceaide/juceaide_artefacts/Debug/juceaide	e2d7f20234a448c
+266	8959	1763566809741528600	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_events/juce_events.mm.o	c4a6ef4f74fab947
+254	46025	1763566809729283939	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_gui_basics/juce_gui_basics.mm.o	ac8f58dfde42797d
+5	67	1763568345410231808	/Users/joebristow/Desktop/CS/Software Engineering/Mid-Level/DSP/Projects/dsp-iron-whale/cmake-build-debug-event-trace/_deps/juce-build/tools/CMakeFiles/cmake.verify_globs	5ff2c70b4a326609
+284	424	1763566809785837735	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_core/juce_core_CompilationTime.cpp.o	d93a8819c56402be
+249	8756	1763566809724370224	extras/Build/juceaide/CMakeFiles/juceaide.dir/Main.cpp.o	a4451e1a39f2d79
+262	21145	1763566809737933854	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_graphics/juce_graphics.mm.o	b46debdf9742016c
+252	8324	1763566809727482149	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/juce_build_tools/juce_build_tools.cpp.o	bc69c772f3203a06
+312	13123	1763566809787286575	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_core/juce_core.mm.o	a25f151ee6896d25
+315	5940	1763566809791153023	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_data_structures/juce_data_structures.mm.o	59515cb16ad61707
+46026	46408	1763566855500692117	extras/Build/juceaide/juceaide_artefacts/Custom/juceaide	2b034a5f601c42de
+4	78	1763568489383879272	/Users/joebristow/Desktop/CS/Software Engineering/Mid-Level/DSP/Projects/dsp-iron-whale/cmake-build-debug-event-trace/_deps/juce-build/tools/CMakeFiles/cmake.verify_globs	5ff2c70b4a326609

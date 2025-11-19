@@ -2,6 +2,7 @@
 // Created by Joe on 09/11/2025.
 //
 
+#pragma once
 #ifndef BSGDELAY_GAINDSP_H
 #define BSGDELAY_GAINDSP_H
 
