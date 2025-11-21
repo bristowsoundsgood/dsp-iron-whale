@@ -49,8 +49,7 @@ public:
 
 private:
     std::vector<GainDSP> gainDsps {};
-    std::vector<DelayDSP> delayDsps;
-    CircularBuffer delayBuffer {};
+    std::vector<DelayDSP> delayDsps {};
 
     // State Management
     juce::AudioProcessorValueTreeState stateManager;

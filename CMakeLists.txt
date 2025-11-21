@@ -34,14 +34,14 @@ set(SourceFiles
 )
 
 add_library(BSGDelay_Core STATIC
-        Source/CircularBuffer.cpp
-        Source/CircularBuffer.h
-        Source/DelayDSP.cpp
-        Source/DelayDSP.h
         Source/GainDSP.cpp
         Source/GainDSP.h
+        Source/DelayDSP.cpp
+        Source/DelayDSP.h
         Source/PluginParameters.cpp
         Source/PluginParameters.h
+        Source/CircularBuffer.cpp
+        Source/CircularBuffer.h
 )
 
 target_link_libraries(BSGDelay_Core PRIVATE
@@ -97,6 +97,8 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 ###### SET UP TESTING EXECUTABLES ######
+ENABLE_TESTING()
+
 Include(FetchContent)
 
 FetchContent_Declare(
@@ -107,7 +109,10 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(Catch2)
 
-add_executable(BSGDelayTest Tests/CircularBufferTest.cpp)
+add_executable(BSGDelayTest
+        Tests/CircularBufferTest.cpp
+        Tests/DelayDSPTest.cpp
+)
 
 target_link_libraries(BSGDelayTest PRIVATE
         Catch2::Catch2WithMain

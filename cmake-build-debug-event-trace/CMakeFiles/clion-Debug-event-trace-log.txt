@@ -17,6 +17,6 @@ This warning is for project developers.  Use -Wno-dev to suppress it.
 -- Exporting juceaide
 -- Testing juceaide
 -- Finished setting up juceaide
--- Configuring done (6.9s)
+-- Configuring done (4.1s)
 -- Generating done (0.1s)
 -- Build files have been written to: /Users/joebristow/Desktop/CS/Software Engineering/Mid-Level/DSP/Projects/dsp-iron-whale/cmake-build-debug-event-trace

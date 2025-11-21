@@ -1,29 +1,37 @@
 //
-// Created by Joe Bristow on 17/11/2025.
+// Created by Joe Bristow on 21/11/2025.
 //
 
 #include "DelayDSP.h"
-#include <cmath>
 
-DelayDSP::DelayDSP(CircularBuffer& delayBuffer) : m_delayBuffer(delayBuffer)
-{
-}
-
-void DelayDSP::prepare(float sampleRate)
+// Sets max size of delay buffer.
+void DelayDSP::prepare(const int numChannels, const float sampleRate)
 {
     m_sampleRate = sampleRate;
+    m_buffer.setSize(numChannels, static_cast<int>(m_maxDelayTime * sampleRate));
 }
 
-int DelayDSP::convertSecondsToSamples(const float seconds) const
+void DelayDSP::processBlock(const int channel, juce::AudioBuffer<float>& audioBuffer, const int blockSize)
 {
-    return static_cast<int>(floor(m_sampleRate * seconds));
-}
+    float* channelData = audioBuffer.getWritePointer(channel);
 
-void DelayDSP::processBlock(const int channel, float* block, const int blockSize) const
-{
-    for (int i = 0; i < blockSize; ++i)
+    for (int i = 0; i < blockSize; i++)
     {
-        block[i] *= m_delayBuffer.getSample(channel, i - m_delaySamples);
+        float currentSample = channelData[i];
+
+        // Write sample to buffer
+        m_buffer.write(channel, currentSample);
+        if (currentSample > 0.0f) std::cout << "Written " << currentSample << " to the buffer" << '\n';
+
+        // Combine current sample with delayed sample
+        const float delayedSample = m_buffer.read(channel, m_buffer.getWritePosition() - m_delaySamples);
+        if (delayedSample > 0.0f) std::cout << "Retrieved " << delayedSample << " from the buffer" << '\n';
+
+        // Only use delayed sample if it contains information.
+        if (delayedSample > 0.0f)
+        {
+            currentSample *= delayedSample;
+        }
     }
 }
 

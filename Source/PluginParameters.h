@@ -18,11 +18,11 @@ namespace PluginConfig
     static const juce::ParameterID paramIDOutGain {"outputGain", 1};
     static const juce::String paramNameOutGain {"Output Gain"};
 
-    static constexpr float minFeedback {0.0f};
-    static constexpr float maxFeedback {2.0f};
-    static constexpr float defaultFeedback {0.0f};
-    static const juce::ParameterID paramIDFeedback {"delayFeedback", 1};
-    static const juce::String paramNameFeedback {"Delay Feedback"};
+    static constexpr float minDelayTime {0.0f};
+    static constexpr float maxDelayTime {5.0f};
+    static constexpr float defaultDelayTime {0.0f};
+    static const juce::ParameterID paramIDDelayTime {"delayTime", 1};
+    static const juce::String paramNameDelayTime {"Delay Time"};
 
     // SmoothedValue settings
     static constexpr float rampOutGain {0.001f};

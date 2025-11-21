@@ -6,7 +6,7 @@
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (DelayPluginProcessor& p)
     : AudioProcessorEditor (&p), processorRef (p), attOutGain(p.getProcessorValueTreeState(), PluginConfig::paramIDOutGain.getParamID(), sldrOutGain),
-        attFeedback(p.getProcessorValueTreeState(), PluginConfig::paramIDFeedback.getParamID(), sldrFeedback)
+        attFeedback(p.getProcessorValueTreeState(), PluginConfig::paramIDDelayTime.getParamID(), sldrFeedback)
 {
     juce::ignoreUnused (processorRef);
     // Make sure that before the constructor has finished, you've set the
@@ -28,9 +28,9 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (DelayPluginPro
 
     sldrFeedback.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     sldrFeedback.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, EditorDefaults::defaultSliderTextBoxReadOnly, EditorDefaults::defaultSliderTextBoxWidth, EditorDefaults::defaultSliderTextBoxHeight);
-    sldrFeedback.setRange(PluginConfig::minFeedback, PluginConfig::maxFeedback, PluginConfig::defaultSliderStep);
-    sldrFeedback.setTextValueSuffix("ms");
-    lblFeedback.setText(PluginConfig::paramNameFeedback, juce::NotificationType::dontSendNotification);
+    sldrFeedback.setRange(PluginConfig::minDelayTime, PluginConfig::maxDelayTime, PluginConfig::defaultSliderStep);
+    sldrFeedback.setTextValueSuffix("s");
+    lblFeedback.setText(PluginConfig::paramNameDelayTime, juce::NotificationType::dontSendNotification);
     lblFeedback.attachToComponent(&sldrFeedback, true);
 }
 

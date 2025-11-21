@@ -1,8 +1,7 @@
 //
-// Created by Joe Bristow on 17/11/2025.
+// Created by Joe Bristow on 21/11/2025.
 //
 
-#pragma once
 #ifndef CIRCULARBUFFER_H
 #define CIRCULARBUFFER_H
 
@@ -10,13 +9,23 @@
 
 class CircularBuffer {
 public:
-    void setSize(const int numChannels, const int numSamples) { buffer.setSize(numChannels, numSamples); }
-    float getSample(const int channel, const int sampleIndex) const { return buffer.getSample(channel, sampleIndex); }
-    void processBlock(const int channel, const juce::AudioBuffer<float>& block, const int blockSize);
+    CircularBuffer();
+    CircularBuffer(const int numChannels, const int numSamples);
+
+    void write(const int channel, const float sample);
+    float read(const int channel, const int index) const;
+
+    void setSize(const int numChannels, const int numSamples) { m_buffer.setSize(numChannels, numSamples); }
+    int getSize() const { return m_buffer.getNumSamples(); }
+
+
+    int getWritePosition() const { return m_writePosition; }
 
 private:
-    int writePosition {0};
-    juce::AudioBuffer<float> buffer {};
+    juce::AudioBuffer<float> m_buffer {};
+    int m_writePosition {};
 };
+
+
 
 #endif //CIRCULARBUFFER_H

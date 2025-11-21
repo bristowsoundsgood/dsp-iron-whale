@@ -7,71 +7,59 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_all.hpp>
 
-// 1. Write to buffer without wrapping
-// 2. Write to buffer without wrapping (maximum)
-// 3. Write to buffer with wrapping (exceed maximum)
-
-CircularBuffer ringBuffer {};
 constexpr double EPSILON {1e-9};
 constexpr int numChannels {1};
-constexpr int blockSize {3};
-constexpr int ringBufferSize {blockSize};
+constexpr int currChannel {numChannels - 1};
 
-constexpr int idxFirst {0};
-constexpr int idxLast {blockSize - 1};
-
-TEST_CASE("Circular Buffer: Initialisation", "[circularBuffer]")
+TEST_CASE("Circular Buffer: Read Sample", "[circularBuffer]")
 {
-    ringBuffer.setSize(numChannels, ringBufferSize);
+    constexpr int size {2};
+    CircularBuffer cb {numChannels, size};
 
-    // Test that we can read from any position
-    REQUIRE_THAT(ringBuffer.getSample(numChannels - 1, idxFirst), Catch::Matchers::WithinAbs(idxFirst, EPSILON));
-    REQUIRE_THAT(ringBuffer.getSample(numChannels - 1, idxLast), Catch::Matchers::WithinAbs(idxLast, EPSILON));
+    // Write 1.0f to the first buffer index
+    cb.write(currChannel, 1.0f);
+    REQUIRE_THAT(cb.read(currChannel, 0), Catch::Matchers::WithinAbs(1.0f, EPSILON));
 }
 
-TEST_CASE("Circular Buffer: Write to Buffer Without Wrapping", "[circularBuffer]")
+TEST_CASE("Circular Buffer: Write Sample", "[circularBuffer]")
 {
-    ringBuffer.setSize(numChannels, ringBufferSize);
+    constexpr int size {2};
+    CircularBuffer cb {numChannels, size};
 
-    // Create dummy samples
-    std::vector<float> samples (blockSize); // 3 samples total (block size of 3)
-    std::iota(samples.begin(), samples.end(), 0);
-    float* ptrSamples = samples.data();
+    // Write 0.0f and 1.0f to indexes 0 and 1 respectively, filling the buffer.
+    cb.write(currChannel, 0.0f);
+    cb.write(currChannel, 1.0f);
 
-    // Create block from dummy samples
-    const juce::AudioBuffer<float> block {&ptrSamples, numChannels, blockSize};
+    // Verify samples were written.
+    REQUIRE_THAT(cb.read(currChannel, 0), Catch::Matchers::WithinAbs(0.0f, EPSILON));
+    REQUIRE_THAT(cb.read(currChannel, 1), Catch::Matchers::WithinAbs(1.0f, EPSILON));
 
-    // Fill ring buffer from block
-    ringBuffer.processBlock(numChannels - 1, block, blockSize);
+    // Verify write position wrapped back to 0 after buffer was filled.
+    REQUIRE(cb.getWritePosition() == 0);
 
-    // Verify block contains all samples
-    REQUIRE_THAT(ringBuffer.getSample(numChannels - 1, 0), Catch::Matchers::WithinAbs(0, EPSILON));
-    REQUIRE_THAT(ringBuffer.getSample(numChannels - 1, blockSize - 1), Catch::Matchers::WithinAbs(blockSize - 1, EPSILON));
+    // Write 2.0f to buffer, which should be wrapped to the 0th element.
+    cb.write(currChannel, 2.0f);
+
+    // Verify buffer contains [2.0f, 1.0f]
+    REQUIRE_THAT(cb.read(currChannel, 0), Catch::Matchers::WithinAbs(2.0f, EPSILON));
+    REQUIRE_THAT(cb.read(currChannel, 1), Catch::Matchers::WithinAbs(1.0f, EPSILON));
+
+    // Verify write position was incremented correctly to 1 (full loop).
+    REQUIRE(cb.getWritePosition() == 1);
 }
 
-TEST_CASE("Circular Buffer: Write to Buffer With Wrapping", "[circularBuffer]")
+TEST_CASE("Circular Buffer: Read Out of Bounds Tests", "[circularBuffer]")
 {
-    // [0, 1, 2] -> [3, 1, 2]
-    ringBuffer.setSize(numChannels, ringBufferSize);
+    constexpr int size {2};
+    CircularBuffer cb {numChannels, size};
 
-    // Create dummy samples [0, 1, 2]
-    std::vector<float> samples (blockSize);
-    std::iota(samples.begin(), samples.end(), 0);
-    float* ptrSamples = samples.data();
-    const juce::AudioBuffer<float> block = {&ptrSamples, numChannels, blockSize};
+    // [0.0f, 1.0f]
+    cb.write(currChannel, 0.0f);
+    cb.write(currChannel, 2.0f);
 
-    // Fill ring buffer from block. This fills up the buffer, leaving no remaining space.
-    ringBuffer.processBlock(numChannels - 1, block, blockSize);
+    // Verify index < 0 is out of bounds (returns 0.0f i.e. silence)
+    REQUIRE_THAT(cb.read(currChannel, -2), Catch::Matchers::WithinAbs(0.0f, EPSILON));
 
-    // Add another sample to the ring buffer. The expected behaviour is that it wraps writing back to the first index, overwriting the first value.
-    std::vector<float> finalSamples {3.0f};
-    float* ptrFinalSamples = finalSamples.data();
-    const juce::AudioBuffer<float> finalBlock = {&ptrFinalSamples, numChannels, static_cast<int>(finalSamples.size())};
-    ringBuffer.processBlock(numChannels - 1, finalBlock, finalBlock.getNumSamples());
-
-    // Verify the output is [3, 1, 2], meaning the write position wrapped around to the first index.
-    const float expectedOutput [3] {3, 1, 2};
-    REQUIRE_THAT(ringBuffer.getSample(numChannels - 1, 0), Catch::Matchers::WithinAbs(expectedOutput[0], EPSILON));
-    REQUIRE_THAT(ringBuffer.getSample(numChannels - 1, 1), Catch::Matchers::WithinAbs(expectedOutput[1], EPSILON));
-    REQUIRE_THAT(ringBuffer.getSample(numChannels - 1, 2), Catch::Matchers::WithinAbs(expectedOutput[2], EPSILON));
+    // Verify index > buffer size is out of bounds (returns 0.0f i.e. silence)
+    REQUIRE_THAT(cb.read(currChannel, size), Catch::Matchers::WithinAbs(0.0f, EPSILON));
 }

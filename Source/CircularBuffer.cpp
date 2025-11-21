@@ -1,29 +1,45 @@
 //
-// Created by Joe Bristow on 17/11/2025.
+// Created by Joe Bristow on 21/11/2025.
 //
 
 #include "CircularBuffer.h"
 
-void CircularBuffer::processBlock(const int channel, const juce::AudioBuffer<float>& block, const int blockSize)
+CircularBuffer::CircularBuffer()
 {
-    const int bufferSize = buffer.getNumSamples();
-
-    // Write each sample to buffer
-    // If index exceeds buffer length, then wrap back to 0 and continue
-
-     for (int i = 0; i < blockSize; ++i)
-     {
-         if (writePosition <= bufferSize - 1)
-         {
-            buffer.addSample(channel, writePosition, block.getSample(channel, i));
-         }
-
-         else if (writePosition > bufferSize - 1)
-         {
-             writePosition = 0;
-             buffer.addSample(channel, writePosition, block.getSample(channel, i));
-         }
-
-         writePosition++;
-     }
 }
+
+CircularBuffer::CircularBuffer(const int numChannels, const int numSamples)
+{
+    m_buffer.setSize(numChannels, numSamples);
+}
+
+// Pushes sample to the buffer. The index is governed by the writePosition. Wrapping is handled automatically.
+void CircularBuffer::write(const int channel, const float sample)
+{
+    m_buffer.addSample(channel, m_writePosition, sample);
+    m_writePosition++;
+
+    // Wrap writePosition if exceeds max buffer length
+    if (m_writePosition > m_buffer.getNumSamples() - 1)
+    {
+        m_writePosition = 0;
+    }
+}
+
+// Only return value if index is in bounds.
+float CircularBuffer::read(const int channel, const int index) const
+{
+    if (index < 0 || index > m_buffer.getNumSamples() - 1)
+    {
+        return 0.0f;
+    }
+
+    else
+    {
+        const float sample =  m_buffer.getSample(channel, index);
+        return sample;
+    }
+}
+
+
+

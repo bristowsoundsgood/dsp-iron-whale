@@ -82,19 +82,17 @@ void DelayPluginProcessor::changeProgramName (int index, const juce::String& new
 //==============================================================================
 void DelayPluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    const int numChannels = getTotalNumOutputChannels();
+
     // Parameters
     params.prepare(sampleRate);
     params.reset();
 
-    // Buffers
-    const int delayBufferSize = static_cast<int>(sampleRate * 2.0); // 2 seconds long
-    delayBuffer.setSize(getTotalNumOutputChannels(), delayBufferSize);
-
     // DSP objects. One per output channel
-    gainDsps.resize(getTotalNumOutputChannels());
-    delayDsps.resize(getTotalNumOutputChannels(), {delayBuffer});
+    gainDsps.resize(numChannels);
+    delayDsps.resize(numChannels);
 
-    for (auto& d : delayDsps) d.prepare(sampleRate);
+    for (auto& d : delayDsps) d.prepare(numChannels, sampleRate);
 }
 
 void DelayPluginProcessor::releaseResources()
@@ -140,20 +138,18 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& audioBuffer,
 
     // Before DSP...
     params.update();
-    const float delayTime = params.getDelayTime();
     const float outGain = params.getOutputGainValue();
+    const float delayTime = params.getDelayTime();
 
     // Process blocks of samples
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         float* channelData = audioBuffer.getWritePointer (channel);
-        delayBuffer.processBlock(channel, audioBuffer, blockSize);
-
-        // delayDsps[channel].setDelayTime(delayTime);
-        // delayDsps[channel].processBlock(channel, channelData, blockSize);
 
         gainDsps[channel].setGainDB(outGain);
+        delayDsps[channel].setDelayTime(delayTime);
         gainDsps[channel].processBlock(channelData, blockSize);
+        delayDsps[channel].processBlock(channel, audioBuffer, blockSize);
     }
 }
 
