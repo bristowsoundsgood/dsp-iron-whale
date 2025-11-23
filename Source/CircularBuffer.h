@@ -14,6 +14,7 @@ public:
 
     void write(const int channel, const float sample);
     float read(const int channel, const int index) const;
+    void clear();
 
     void setSize(const int numChannels, const int numSamples) { m_buffer.setSize(numChannels, numSamples); }
     int getSize() const { return m_buffer.getNumSamples(); }

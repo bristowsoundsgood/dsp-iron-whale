@@ -92,13 +92,20 @@ void DelayPluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     gainDsps.resize(numChannels);
     delayDsps.resize(numChannels);
 
-    for (auto& d : delayDsps) d.prepare(numChannels, sampleRate);
+    for (auto& d : delayDsps)
+    {
+        d.clear();
+        d.prepare(numChannels, sampleRate);
+    }
 }
 
 void DelayPluginProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
+    // When playback stops, free up memory.
+    for (auto& d : delayDsps)
+    {
+        d.clear();
+    }
 }
 
 bool DelayPluginProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
@@ -144,12 +151,12 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& audioBuffer,
     // Process blocks of samples
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        float* channelData = audioBuffer.getWritePointer (channel);
+        float* channelData = audioBuffer.getWritePointer(channel);
 
         gainDsps[channel].setGainDB(outGain);
         delayDsps[channel].setDelayTime(delayTime);
         gainDsps[channel].processBlock(channelData, blockSize);
-        delayDsps[channel].processBlock(channel, audioBuffer, blockSize);
+        delayDsps[channel].processBlock(channel, channelData, blockSize);
     }
 }
 

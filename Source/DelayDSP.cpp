@@ -4,34 +4,63 @@
 
 #include "DelayDSP.h"
 
+/*
+ * FIXES NEEDED:
+ * - Delay time is not correct
+ * - Delay is not consistent
+ */
+
+int sampleCounter {0};
+
+bool areEqualAbs(const float a, const float b, const float epsilon = 0.00001f)
+{
+    return (fabs(a - b) <= epsilon);
+}
+
 // Sets max size of delay buffer.
 void DelayDSP::prepare(const int numChannels, const float sampleRate)
 {
     m_sampleRate = sampleRate;
-    m_buffer.setSize(numChannels, static_cast<int>(m_maxDelayTime * sampleRate));
+    m_buffer.setSize(numChannels, static_cast<int>(m_maxDelayTime * m_sampleRate));
 }
 
-void DelayDSP::processBlock(const int channel, juce::AudioBuffer<float>& audioBuffer, const int blockSize)
+void DelayDSP::processBlock(const int channel, float* block, const int blockSize)
 {
-    float* channelData = audioBuffer.getWritePointer(channel);
-
     for (int i = 0; i < blockSize; i++)
     {
-        float currentSample = channelData[i];
+        float& currentSample = block[i];
 
         // Write sample to buffer
         m_buffer.write(channel, currentSample);
-        if (currentSample > 0.0f) std::cout << "Written " << currentSample << " to the buffer" << '\n';
+
+        if (areEqualAbs(currentSample, 0.018709f))
+        {
+            std::cout << "WRITE: 0 samples in" << '\n';
+            sampleCounter = 0;
+        }
 
         // Combine current sample with delayed sample
-        const float delayedSample = m_buffer.read(channel, m_buffer.getWritePosition() - m_delaySamples);
-        if (delayedSample > 0.0f) std::cout << "Retrieved " << delayedSample << " from the buffer" << '\n';
+        const int readIndex = m_buffer.getWritePosition() - m_delaySamples;
+        const float delayedSample = m_buffer.read(channel, readIndex);
+
+        if (areEqualAbs(delayedSample, 0.018709f))
+        {
+            std::cout << "READ: occurred " << sampleCounter << " samples after playback" << '\n';
+        }
 
         // Only use delayed sample if it contains information.
-        if (delayedSample > 0.0f)
+        if (delayedSample != 0.0f)
         {
-            currentSample *= delayedSample;
+            currentSample = delayedSample;
         }
+
+        sampleCounter++;
     }
 }
+
+void DelayDSP::clear()
+{
+    m_buffer.clear();
+}
+
 

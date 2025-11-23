@@ -22,8 +22,11 @@
 class DelayDSP {
 public:
     void prepare(const int numChannels, const float sampleRate);
-    void processBlock(const int channel, juce::AudioBuffer<float>& audioBuffer, const int blockSize);
+    void processBlock(const int channel, float* block, const int blockSize);
+    void clear();
     void setDelayTime(const float delayTime) { m_delaySamples = convertSecondsToSamples(delayTime); }
+
+    int convertSecondsToSamples(float seconds) { return static_cast<int>(seconds * m_sampleRate); }
 
 private:
     CircularBuffer m_buffer {};
@@ -31,8 +34,6 @@ private:
 
     int m_maxDelayTime {5};
     int m_delaySamples {};
-
-    int convertSecondsToSamples(float seconds) { return static_cast<int>(seconds * m_sampleRate); }
 };
 
 

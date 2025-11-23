@@ -41,5 +41,12 @@ float CircularBuffer::read(const int channel, const int index) const
     }
 }
 
+void CircularBuffer::clear()
+{
+    m_buffer.clear();
+    m_writePosition = 0;
+}
+
+
 
 
