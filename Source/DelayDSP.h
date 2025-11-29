@@ -1,41 +1,34 @@
 //
-// Created by Joe Bristow on 21/11/2025.
+// Created by Joe on 25/11/2025.
 //
 
-#ifndef DELAYDSP_H
-#define DELAYDSP_H
+#ifndef BSGDELAY_DELAYDSP_H
+#define BSGDELAY_DELAYDSP_H
 
-#include "CircularBuffer.h"
+#include <juce_dsp/juce_dsp.h>
 
-/*
- * CONCEPT:
- * 1. Each sample from main audio buffer is saved into the delay buffer.
- * 2. The 'write' position tracks where to write the next sample, wrapping back to 0 when the buffer length is reached.
- * 3. The 'read' position tracks where to read delayed samples. It is 'x' samples behind the write position. The delay time determines the samples it is behind by.
- *
- * IMPLEMENTATION:
- * .processBlock() iterates through samples in audio buffer, combining them with samples stored in the delay buffer.
- * .prepare() uses the system's sample rate to establish how many samples long the delay is (through delayTime member).
- *
- * - Delay time determines how far back the
-*/
-class DelayDSP {
+class DelayDSP
+{
 public:
-    void prepare(const int numChannels, const float sampleRate);
-    void processBlock(const int channel, float* block, const int blockSize);
-    void clear();
-    void setDelayTime(const float delayTime) { m_delaySamples = convertSecondsToSamples(delayTime); }
+    void prepareToPlay(int numChannels, float sampleRate, int blockSize);
+    void processBlock(int channel, float* block, int blockSize);
 
-    int convertSecondsToSamples(float seconds) { return static_cast<int>(seconds * m_sampleRate); }
+    // Delay time is in seconds. No need to convert units in this class
+    void setTargetDelayTime(const float targetDelayTime) { m_targetDelayTime = targetDelayTime; }
+    void smoothenDelayTime() { m_currentDelayTime += (m_targetDelayTime - m_currentDelayTime) * m_smootherCoefficient; }
+
+    void setDelayTime(float seconds);
 
 private:
-    CircularBuffer m_buffer {};
     float m_sampleRate {};
+    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> delayLine {};
 
-    int m_maxDelayTime {5};
-    int m_delaySamples {};
+    float m_currentDelayTime {0.0f};
+    float m_targetDelayTime {0.0f};
+    float m_smootherCoefficient {0.0f};
+
+    [[nodiscard]] int convertSecondsToSamples(float seconds) const;
 };
 
 
-
-#endif //DELAYDSP_H
+#endif //BSGDELAY_DELAYDSP_H

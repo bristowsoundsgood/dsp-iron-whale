@@ -36,12 +36,12 @@ private:
     // Declare child components
     juce::Slider sldrOutGain;
     juce::Label lblOutGain;
-    juce::Slider sldrFeedback;
+    juce::Slider sldrDelayTime;
     juce::Label lblFeedback;
 
     // Parameter attachments
     juce::AudioProcessorValueTreeState::SliderAttachment attOutGain;
-    juce::AudioProcessorValueTreeState::SliderAttachment attFeedback;
+    juce::AudioProcessorValueTreeState::SliderAttachment attDelayTime;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };

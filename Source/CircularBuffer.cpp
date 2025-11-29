@@ -16,11 +16,11 @@ CircularBuffer::CircularBuffer(const int numChannels, const int numSamples)
 // Pushes sample to the buffer. The index is governed by the writePosition. Wrapping is handled automatically.
 void CircularBuffer::write(const int channel, const float sample)
 {
-    m_buffer.addSample(channel, m_writePosition, sample);
+    m_buffer.setSample(channel, m_writePosition, sample);
     m_writePosition++;
 
     // Wrap writePosition if exceeds max buffer length
-    if (m_writePosition > m_buffer.getNumSamples() - 1)
+    if (m_writePosition > m_buffer.getNumSamples() - 1 || m_writePosition < 0)
     {
         m_writePosition = 0;
     }
@@ -36,8 +36,7 @@ float CircularBuffer::read(const int channel, const int index) const
 
     else
     {
-        const float sample =  m_buffer.getSample(channel, index);
-        return sample;
+        return m_buffer.getSample(channel, index);
     }
 }
 

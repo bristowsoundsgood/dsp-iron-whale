@@ -24,7 +24,7 @@ public:
 
 private:
     juce::AudioBuffer<float> m_buffer {};
-    int m_writePosition {};
+    int m_writePosition {0};
 };
 
 

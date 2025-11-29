@@ -88,24 +88,19 @@ void DelayPluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     params.prepare(sampleRate);
     params.reset();
 
-    // DSP objects. One per output channel
+    // Prepare DSP objects. One per output channel
     gainDsps.resize(numChannels);
     delayDsps.resize(numChannels);
 
     for (auto& d : delayDsps)
     {
-        d.clear();
-        d.prepare(numChannels, sampleRate);
+        d.prepareToPlay(numChannels, static_cast<float>(sampleRate), samplesPerBlock);
     }
 }
 
 void DelayPluginProcessor::releaseResources()
 {
     // When playback stops, free up memory.
-    for (auto& d : delayDsps)
-    {
-        d.clear();
-    }
 }
 
 bool DelayPluginProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
@@ -133,9 +128,9 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& audioBuffer,
     juce::ignoreUnused (midiMessages);
     juce::ScopedNoDenormals noDenormals;
 
-    auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
-    const float blockSize = audioBuffer.getNumSamples();
+    const int totalNumInputChannels = getTotalNumInputChannels();
+    const int totalNumOutputChannels = getTotalNumOutputChannels();
+    const int blockSize = audioBuffer.getNumSamples();
 
     // Clears any output channels that do not contain input data. Prevents screaming feedback.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
@@ -145,18 +140,19 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& audioBuffer,
 
     // Before DSP...
     params.update();
-    const float outGain = params.getOutputGainValue();
-    const float delayTime = params.getDelayTime();
+    const float outGain = params.getOutputGainDB();
+    const float delayTime = params.getDelayTimeSeconds();
+
+    for (auto& g : gainDsps) g.setGainDB(outGain);
+    for (auto& d : delayDsps) d.setTargetDelayTime(delayTime);
 
     // Process blocks of samples
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         float* channelData = audioBuffer.getWritePointer(channel);
 
-        gainDsps[channel].setGainDB(outGain);
-        delayDsps[channel].setDelayTime(delayTime);
-        gainDsps[channel].processBlock(channelData, blockSize);
         delayDsps[channel].processBlock(channel, channelData, blockSize);
+        gainDsps[channel].processBlock(channelData, blockSize);
     }
 }
 

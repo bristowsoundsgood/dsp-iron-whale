@@ -3,6 +3,7 @@
 //
 
 #include "PluginParameters.h"
+#include "../Utils/ParameterUtils.h"
 
 PluginParameters::PluginParameters(const juce::AudioProcessorValueTreeState& stateManager)
 {
@@ -14,11 +15,12 @@ PluginParameters::PluginParameters(const juce::AudioProcessorValueTreeState& sta
 // Sets the sample rate and ramp time for the parameter smoothers
 void PluginParameters::prepare(const double sampleRate) noexcept
 {
-    m_smootherGain.reset(sampleRate, PluginConfig::rampOutGain);
+    m_smootherGain.reset(sampleRate, PluginConfig::rampSmoothTime);
 }
 
 void PluginParameters::reset() noexcept
 {
+    // When playback restarts, set smoother values to the same value as the plugin parameters, meaning they do not have left-over interpolation.
     m_smootherGain.setCurrentAndTargetValue(m_paramOutGain->get());
 }
 
@@ -31,6 +33,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginParameters::createPara
 {
     return {
         std::make_unique<juce::AudioParameterFloat>(PluginConfig::paramIDOutGain, PluginConfig::paramNameOutGain, PluginConfig::minOutGain, PluginConfig::maxOutGain, PluginConfig::defaultOutGain),
-        std::make_unique<juce::AudioParameterFloat>(PluginConfig::paramIDDelayTime, PluginConfig::paramNameDelayTime, PluginConfig::minDelayTime, PluginConfig::maxDelayTime, PluginConfig::defaultDelayTime)
+        std::make_unique<juce::AudioParameterFloat>(PluginConfig::paramIDDelayTime, PluginConfig::paramNameDelayTime, PluginConfig::delayTimeRange,
+            PluginConfig::defaultDelayTime, juce::AudioParameterFloatAttributes().withStringFromValueFunction(ParameterUtils::adaptPrecisionMilliseconds))
     };
 }

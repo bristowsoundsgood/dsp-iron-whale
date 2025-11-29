@@ -9,23 +9,28 @@
 
 namespace PluginConfig
 {
-    // Parameter settings
-    static constexpr float defaultSliderStep {0.01f};
+    // General
+    static constexpr float sliderStepDefault {0.01f};
+    static constexpr float sliderStepDelayTime {0.1f};
 
+    // Gain
     static constexpr float minOutGain {-64.0f};
     static constexpr float maxOutGain {24.0f};
     static constexpr float defaultOutGain {0.0f};
     static const juce::ParameterID paramIDOutGain {"outputGain", 1};
     static const juce::String paramNameOutGain {"Output Gain"};
 
-    static constexpr float minDelayTime {0.0f};
-    static constexpr float maxDelayTime {5.0f};
-    static constexpr float defaultDelayTime {0.0f};
+    // Delay
+    static constexpr float minDelayTime {5.0f};
+    static constexpr float maxDelayTime {5000.0f};
+    static constexpr float defaultDelayTime {50.0f};
+    static constexpr float skewFactorDelay {0.25f};
     static const juce::ParameterID paramIDDelayTime {"delayTime", 1};
     static const juce::String paramNameDelayTime {"Delay Time"};
+    static const juce::NormalisableRange<float> delayTimeRange {minDelayTime, maxDelayTime, sliderStepDelayTime, skewFactorDelay};
 
     // SmoothedValue settings
-    static constexpr float rampOutGain {0.001f};
+    static constexpr float rampSmoothTime {0.001f};
 }
 
 class PluginParameters
@@ -38,8 +43,8 @@ public:
     [[nodiscard]] static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() noexcept;
 
     // Accessor methods
-    [[nodiscard]] float getOutputGainValue() { return m_smootherGain.getNextValue(); }
-    [[nodiscard]] float getDelayTime() const { return m_paramDelayTime->get(); }
+    [[nodiscard]] float getOutputGainDB() { return m_smootherGain.getNextValue(); }
+    [[nodiscard]] float getDelayTimeSeconds() const { return m_paramDelayTime->get() / 1000.0f; }
 
     // Parameter smoothing methods
     void prepare(double sampleRate) noexcept;
@@ -47,9 +52,12 @@ public:
     void update() noexcept;
 
 private:
+    // Parameter objects
     juce::AudioParameterFloat* m_paramOutGain {};
     juce::AudioParameterFloat* m_paramDelayTime {};
-    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> m_smootherGain {};
+
+    // Parameter smoothing
+    juce::SmoothedValue<float> m_smootherGain {};
 };
 
 #endif //PLUGINPARAMETERS_H

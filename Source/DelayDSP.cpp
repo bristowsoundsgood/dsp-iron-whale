@@ -1,66 +1,59 @@
 //
-// Created by Joe Bristow on 21/11/2025.
+// Created by Joe on 25/11/2025.
 //
 
 #include "DelayDSP.h"
+#include "PluginParameters.h"
 
-/*
- * FIXES NEEDED:
- * - Delay time is not correct
- * - Delay is not consistent
- */
-
-int sampleCounter {0};
-
-bool areEqualAbs(const float a, const float b, const float epsilon = 0.00001f)
+// Assumes the passed value is in seconds, not milliseconds!
+int DelayDSP::convertSecondsToSamples(const float seconds) const
 {
-    return (fabs(a - b) <= epsilon);
+    return static_cast<int>(std::ceil(seconds * m_sampleRate));
 }
 
-// Sets max size of delay buffer.
-void DelayDSP::prepare(const int numChannels, const float sampleRate)
+void DelayDSP::prepareToPlay(const int numChannels, const float sampleRate, const int blockSize)
 {
     m_sampleRate = sampleRate;
-    m_buffer.setSize(numChannels, static_cast<int>(m_maxDelayTime * m_sampleRate));
+
+    // This equation emulates the exponential decay of an analog filter. Used to modulate delay time.
+    m_smootherCoefficient = 1.0f - std::exp(-1.0f / (0.2f * m_sampleRate));
+
+    // Prepare delay line (ProcessSpec encapsulates contextual information)
+    juce::dsp::ProcessSpec spec {};
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = static_cast<juce::uint32>(blockSize);
+    spec.numChannels = numChannels;
+    delayLine.prepare(spec);
+
+    // Use max delay time to set delay line size.
+    const int maxDelayInSamples(convertSecondsToSamples(PluginConfig::maxDelayTime / 1000.0f));
+    delayLine.setMaximumDelayInSamples(maxDelayInSamples);
+
+    // Clear internal state to avoid undefined behaviour
+    delayLine.reset();
 }
 
 void DelayDSP::processBlock(const int channel, float* block, const int blockSize)
 {
-    for (int i = 0; i < blockSize; i++)
+    for (int sample = 0; sample < blockSize; ++sample)
     {
-        float& currentSample = block[i];
+        // Step delay time toward target value
+        smoothenDelayTime();
+        const float smoothedDelayTime = m_currentDelayTime;
+        setDelayTime(smoothedDelayTime);
 
-        // Write sample to buffer
-        m_buffer.write(channel, currentSample);
+        // Save current sample to delay buffer
+        const float dry = block[sample];
+        delayLine.pushSample(channel, dry);
 
-        if (areEqualAbs(currentSample, 0.018709f))
-        {
-            std::cout << "WRITE: 0 samples in" << '\n';
-            sampleCounter = 0;
-        }
-
-        // Combine current sample with delayed sample
-        const int readIndex = m_buffer.getWritePosition() - m_delaySamples;
-        const float delayedSample = m_buffer.read(channel, readIndex);
-
-        if (areEqualAbs(delayedSample, 0.018709f))
-        {
-            std::cout << "READ: occurred " << sampleCounter << " samples after playback" << '\n';
-        }
-
-        // Only use delayed sample if it contains information.
-        if (delayedSample != 0.0f)
-        {
-            currentSample = delayedSample;
-        }
-
-        sampleCounter++;
+        // Retrieve delayed sample from delay buffer
+        const float wet = delayLine.popSample(channel, delayLine.getDelay());
+        block[sample] = wet;
     }
 }
 
-void DelayDSP::clear()
+void DelayDSP::setDelayTime(const float seconds)
 {
-    m_buffer.clear();
+    delayLine.setDelay(convertSecondsToSamples(seconds)); // Convert ms to s, then convert s to samples
 }
-
 
