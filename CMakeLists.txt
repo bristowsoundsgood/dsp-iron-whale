@@ -42,6 +42,8 @@ add_library(BSGDelay_Core STATIC
         Source/CircularBuffer.h
         Source/DelayDSP.cpp
         Source/DelayDSP.h
+        GUI/DefaultSkin.cpp
+        GUI/DefaultSkin.h
         GUI/RotaryDial.cpp
         GUI/RotaryDial.h
         Utils/ParameterUtils.cpp
@@ -78,6 +80,12 @@ juce_add_plugin(${PROJECT_NAME}
         PLUGIN_CODE Del1
         FORMATS VST3 AU Standalone
         PRODUCT_NAME "BSGDelay"
+)
+
+juce_add_binary_data(BinaryData
+        SOURCES
+            Assets/Quantico.ttf
+            Assets/IBMPlexSans.ttf
 )
 
 # How we want our SourceFiles to appear in our IDE
@@ -120,6 +128,7 @@ add_executable(BSGDelayTest
 target_link_libraries(BSGDelayTest PRIVATE
         Catch2::Catch2WithMain
         BSGDelay_Core
+        BinaryData
         juce::juce_analytics
         juce::juce_audio_basics
         juce::juce_audio_devices

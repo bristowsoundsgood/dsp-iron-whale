@@ -37,12 +37,19 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginParameters::createPara
 {
     return {
         std::make_unique<juce::AudioParameterFloat>(PluginConfig::paramIDOutGain, PluginConfig::paramNameOutGain, PluginConfig::outputGainRange,
-            PluginConfig::defaultOutGain, juce::AudioParameterFloatAttributes().withStringFromValueFunction(ParameterUtils::stringFromDecibels)),
+            PluginConfig::defaultOutGain,
+            juce::AudioParameterFloatAttributes()
+            .withStringFromValueFunction(ParameterUtils::stringFromDecibels)),
 
         std::make_unique<juce::AudioParameterFloat>(PluginConfig::paramIDDelayTime, PluginConfig::paramNameDelayTime, PluginConfig::delayTimeRange,
-            PluginConfig::defaultDelayTime, juce::AudioParameterFloatAttributes().withStringFromValueFunction(ParameterUtils::stringFromMilliseconds)),
+            PluginConfig::defaultDelayTime,
+            juce::AudioParameterFloatAttributes()
+            .withStringFromValueFunction(ParameterUtils::stringFromMilliseconds)
+            .withValueFromStringFunction(ParameterUtils::millisecondsFromString)),
 
         std::make_unique<juce::AudioParameterFloat>(PluginConfig::paramIDDryWet, PluginConfig::paramNameDryWet, PluginConfig::dryWetRange,
-            PluginConfig::defaultDryWet, juce::AudioParameterFloatAttributes().withStringFromValueFunction(ParameterUtils::stringFromPercent))
+            PluginConfig::defaultDryWet,
+            juce::AudioParameterFloatAttributes()
+            .withStringFromValueFunction(ParameterUtils::stringFromPercent))
     };
 }

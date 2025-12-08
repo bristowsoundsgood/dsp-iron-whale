@@ -2,7 +2,7 @@
 
 #include <juce_gui_basics/juce_gui_basics.h>
 #include "PluginProcessor.h"
-#include "../GUI/EditorConfig.h"
+#include "../GUI/DefaultSkin.h"
 #include "../GUI/RotaryDial.h"
 
 //==============================================================================
@@ -26,9 +26,9 @@ private:
     juce::GroupComponent mixGroup;
 
     // Declare child components
-    RotaryDial dialDelayTime {stateRef, PluginConfig::paramIDDelayTime, "Time"};
-    RotaryDial dialDryWet {stateRef, PluginConfig::paramIDDryWet, "Dry/Wet"};
-    RotaryDial dialOutGain {stateRef, PluginConfig::paramIDOutGain, "Output Gain"};
+    RotaryDial dialDelayTime {stateRef, PluginConfig::paramIDDelayTime, PluginConfig::labelTextDelayTime};
+    RotaryDial dialDryWet {stateRef, PluginConfig::paramIDDryWet, PluginConfig::labelTextDryWet};
+    RotaryDial dialOutGain {stateRef, PluginConfig::paramIDOutGain, PluginConfig::labelTextOutGain};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessorEditor)
 };

@@ -4,6 +4,8 @@
 
 #include "ParameterUtils.h"
 
+#include "../Source/PluginParameters.h"
+
 // Precision depends on value magnitude
 juce::String ParameterUtils::stringFromMilliseconds(const float value, int)
 {
@@ -37,4 +39,26 @@ juce::String ParameterUtils::stringFromPercent(const float value, int)
 {
     return juce::String(value) + "%";
 }
+
+float ParameterUtils::millisecondsFromString(const juce::String& text)
+{
+    const float value = text.getFloatValue();
+
+    if (text.endsWithIgnoreCase("ms"))
+    {
+        return value;
+    }
+
+    // 1.0s -> 1000.0ms (also converts to seconds if ms is not possible with constraints)
+    else if (text.endsWithIgnoreCase("s") || value < PluginConfig::minDelayTime)
+    {
+        return value * 1000.0f;
+    }
+
+    else
+    {
+        return PluginConfig::defaultDelayTime;
+    }
+}
+
 

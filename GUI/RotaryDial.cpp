@@ -9,8 +9,8 @@ RotaryDial::RotaryDial(juce::AudioProcessorValueTreeState& state, const juce::Pa
 {
     slider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     slider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow,
-                            GUIDefaults::sliderTextBoxReadOnly, GUIDefaults::sliderTextBoxWidth,
-                            GUIDefaults::sliderTextBoxHeight);
+                            Dimensions::sliderTextBoxReadOnly, Dimensions::sliderTextBoxWidth,
+                            Dimensions::sliderTextBoxHeight);
     addAndMakeVisible(slider);
 
     label.setText(labelText, juce::NotificationType::dontSendNotification);
@@ -19,7 +19,7 @@ RotaryDial::RotaryDial(juce::AudioProcessorValueTreeState& state, const juce::Pa
     label.attachToComponent(&slider, false);
     addAndMakeVisible(label);
 
-    setSize(GUIDefaults::sliderWidth, GUIDefaults::sliderHeight + GUIDefaults::labelHeight);
+    setSize(Dimensions::sliderWidth, Dimensions::sliderHeight + Dimensions::labelHeight);
 }
 
 RotaryDial::~RotaryDial()
@@ -36,5 +36,7 @@ void RotaryDial::resized()
 
     // Label area occupies remaining bottom portion
     label.setBounds(totalArea);
+
+    setLookAndFeel(&RotaryDialLookAndFeel::instance());
 }
 
