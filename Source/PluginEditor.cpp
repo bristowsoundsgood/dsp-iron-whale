@@ -24,6 +24,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (DelayPluginPro
     mixGroup.addAndMakeVisible(dialOutGain);
     addAndMakeVisible(mixGroup);
 
+    setLookAndFeel(&MainLookAndFeel::instance());
     setSize(Dimensions::windowWidth, Dimensions::windowHeight);
 }
 

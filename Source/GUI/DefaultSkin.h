@@ -8,16 +8,6 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include "BinaryData.h"
 
-namespace Text
-{
-    class Font
-    {
-    public:
-        static juce::Typeface::Ptr getFont() { return {juce::Typeface::createSystemTypefaceFor(BinaryData::IBMPlexSans_ttf, BinaryData::IBMPlexSans_ttfSize)}; }
-        Font() = delete;
-    };
-}
-
 namespace Dimensions
 {
     static constexpr int windowWidth {650};
@@ -39,6 +29,19 @@ namespace Dimensions
     static constexpr int groupHeight {windowHeight - (marginTop * 2)};
 }
 
+namespace Text
+{
+    static constexpr float fontSize {16.0f};
+
+    class Fonts
+    {
+    public:
+        static juce::Typeface::Ptr getTypeface();
+        static juce::Font getFont(float height = fontSize);
+        Fonts() = delete; // No need to create any instance of this class. Only need to access getFont().
+    };
+}
+
 namespace Colours
 {
     const juce::Colour background {23, 29, 37};
@@ -46,17 +49,30 @@ namespace Colours
 
     namespace Dial
     {
-        const juce::Colour dialFill {208, 87, 46};
+        const juce::Colour dialFill {208, 117, 84};
+    }
+
+    namespace GroupComponent
+    {
+        const juce::Colour label {};
+        const juce::Colour outline {250, 239, 235};
     }
 }
+
+class MainLookAndFeel : public juce::LookAndFeel_V4
+{
+public:
+    static MainLookAndFeel& instance();
+private:
+    MainLookAndFeel();
+    ~MainLookAndFeel();
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainLookAndFeel)
+};
 
 class RotaryDialLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
     static RotaryDialLookAndFeel& instance();
-
-    // void drawRotarySlider(juce::Graphics&, int x, int y, int width, int height,
-    //    float sliderPosProportional, float rotaryStartAngle, float rotaryEndAngle, juce::Slider&) override;
 
 private:
     RotaryDialLookAndFeel();
