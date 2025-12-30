@@ -31,7 +31,7 @@ juce::String ParameterUtils::stringFromMilliseconds(const float value, int)
 
 juce::String ParameterUtils::stringFromDecibels(const float value, int)
 {
-    return juce::String(value) + "dB";
+    return juce::String(value, 2) + "dB";
 }
 
 juce::String ParameterUtils::stringFromPercent(const float value, int)

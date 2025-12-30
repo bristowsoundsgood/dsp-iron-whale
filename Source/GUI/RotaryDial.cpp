@@ -4,13 +4,14 @@
 
 #include "RotaryDial.h"
 
-RotaryDial::RotaryDial(juce::AudioProcessorValueTreeState& state, const juce::ParameterID& parameterID,
+RotaryDial::RotaryDial(juce::AudioProcessorValueTreeState& state,  const juce::ParameterID& parameterID,
     const juce::String& labelText) : attachment(state, parameterID.getParamID(), slider)
 {
     slider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     slider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow,
-                            Dimensions::sliderTextBoxReadOnly, Dimensions::sliderTextBoxWidth,
-                            Dimensions::sliderTextBoxHeight);
+                           Dimensions::sliderTextBoxReadOnly, Dimensions::sliderTextBoxWidth,
+                           Dimensions::sliderTextBoxHeight);
+
     addAndMakeVisible(slider);
 
     label.setText(labelText, juce::NotificationType::dontSendNotification);
@@ -18,6 +19,8 @@ RotaryDial::RotaryDial(juce::AudioProcessorValueTreeState& state, const juce::Pa
     label.setBorderSize(juce::BorderSize<int>(0));
     label.attachToComponent(&slider, false);
     addAndMakeVisible(label);
+
+    slider.setRotaryParameters(1.25f * juce::MathConstants<float>::pi, 2.75f * juce::MathConstants<float>::pi, true);
 
     setLookAndFeel(&RotaryDialLookAndFeel::instance());
     setSize(Dimensions::sliderWidth, Dimensions::sliderHeight + Dimensions::labelHeight);

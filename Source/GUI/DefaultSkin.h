@@ -49,7 +49,13 @@ namespace Colours
 
     namespace Dial
     {
+        const juce::Colour outline {255, 250, 245};
+        const juce::Colour gradientTop {250, 245, 240};
+        const juce::Colour gradientBottom {240, 235, 230};
+        const juce::Colour trackBackground {205, 200, 195};
+        const juce::Colour dialTick {100, 100, 100};
         const juce::Colour dialFill {208, 117, 84};
+        const juce::Colour dropShadow {195, 190, 185};
     }
 
     namespace GroupComponent
@@ -65,7 +71,7 @@ public:
     static MainLookAndFeel& instance();
 private:
     MainLookAndFeel();
-    ~MainLookAndFeel();
+    ~MainLookAndFeel() override;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainLookAndFeel)
 };
 
@@ -74,8 +80,11 @@ class RotaryDialLookAndFeel : public juce::LookAndFeel_V4
 public:
     static RotaryDialLookAndFeel& instance();
 
+    void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height,
+        float sliderPos, float rotaryStartAngle, float rotaryEndAngle, juce::Slider& slider) override;
 private:
     RotaryDialLookAndFeel();
+    juce::DropShadow dropShadow {Colours::Dial::dropShadow, 6, {0, 3}};
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RotaryDialLookAndFeel)
 };
 
