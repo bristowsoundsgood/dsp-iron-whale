@@ -11,6 +11,7 @@ PluginParameters::PluginParameters(const juce::AudioProcessorValueTreeState& sta
     m_paramOutGain = dynamic_cast<juce::AudioParameterFloat*> (stateManager.getParameter(PluginConfig::paramIDOutGain.getParamID()));
     m_paramDelayTime = dynamic_cast<juce::AudioParameterFloat*> (stateManager.getParameter(PluginConfig::paramIDDelayTime.getParamID()));
     m_paramDryWet = dynamic_cast<juce::AudioParameterFloat*>(stateManager.getParameter(PluginConfig::paramIDDryWet.getParamID()));
+    m_paramFeedback = dynamic_cast<juce::AudioParameterFloat*>(stateManager.getParameter(PluginConfig::paramIDFeedback.getParamID()));
 }
 
 // Sets the sample rate and ramp time for the parameter smoothers
@@ -46,6 +47,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginParameters::createPara
             juce::AudioParameterFloatAttributes()
             .withStringFromValueFunction(ParameterUtils::stringFromMilliseconds)
             .withValueFromStringFunction(ParameterUtils::millisecondsFromString)),
+
+        std::make_unique<juce::AudioParameterFloat>(PluginConfig::paramIDFeedback, PluginConfig::paramNameFeedback, PluginConfig::feedbackRange,
+            PluginConfig::defaultFeedback, juce::AudioParameterFloatAttributes().withStringFromValueFunction(ParameterUtils::stringFromPercent)),
 
         std::make_unique<juce::AudioParameterFloat>(PluginConfig::paramIDDryWet, PluginConfig::paramNameDryWet, PluginConfig::dryWetRange,
             PluginConfig::defaultDryWet,

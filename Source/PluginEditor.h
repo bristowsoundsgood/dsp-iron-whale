@@ -29,6 +29,7 @@ private:
     RotaryDial dialDelayTime {stateRef, PluginConfig::paramIDDelayTime, PluginConfig::labelTextDelayTime};
     RotaryDial dialDryWet {stateRef, PluginConfig::paramIDDryWet, PluginConfig::labelTextDryWet};
     RotaryDial dialOutGain {stateRef, PluginConfig::paramIDOutGain, PluginConfig::labelTextOutGain};
+    RotaryDial dialFeedback {stateRef, PluginConfig::paramIDFeedback, PluginConfig::labelTextFeedback};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessorEditor)
 };

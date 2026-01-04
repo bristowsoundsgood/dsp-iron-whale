@@ -49,6 +49,8 @@ void DelayDSP::processBlock(const int channel, float* block, const int blockSize
         // Retrieve delayed sample from delay buffer
         const float wet = delayLine.popSample(channel, delayLine.getDelay());
 
+        // Multi-tap delay: feedback parameter sets how many samples in the past.
+
         // Mix dry and wet signal, based on dry/wet value. 100% wet means only wet. 100% dry is only dry. 50% wet is dry and wet in equal amounts.
         block[sample] = (1.0f - m_dryWet) * dry + m_dryWet  * wet;
     }

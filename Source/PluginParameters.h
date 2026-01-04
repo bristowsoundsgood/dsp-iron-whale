@@ -15,32 +15,41 @@ namespace PluginConfig
     static constexpr float intervalDryWet {1.0f};
 
     // Gain
+    static const juce::ParameterID paramIDOutGain {"outputGain", 1};
+    static const juce::String paramNameOutGain {"Output Gain"};
+    static const juce::String labelTextOutGain {"OUT GAIN"};
     static constexpr float minOutGain {-64.0f};
     static constexpr float maxOutGain {24.0f};
     static constexpr float defaultOutGain {0.0f};
-    static const juce::ParameterID paramIDOutGain {"outputGain", 1};
-    static const juce::String paramNameOutGain {"Output Gain"};
     static const juce::NormalisableRange<float> outputGainRange {minOutGain, maxOutGain, intervalDefault};
-    static const juce::String labelTextOutGain {"OUT GAIN"};
 
     // Delay
+    static const juce::ParameterID paramIDDelayTime {"delayTime", 1};
+    static const juce::String paramNameDelayTime {"Delay Time"};
+    static const juce::String labelTextDelayTime {"TIME"};
     static constexpr float minDelayTime {5.0f};
     static constexpr float maxDelayTime {5000.0f};
     static constexpr float defaultDelayTime {50.0f};
     static constexpr float skewFactorDelay {0.25f};
-    static const juce::ParameterID paramIDDelayTime {"delayTime", 1};
-    static const juce::String paramNameDelayTime {"Delay Time"};
     static const juce::NormalisableRange<float> delayTimeRange {minDelayTime, maxDelayTime, intervalDelayTime, skewFactorDelay};
-    static const juce::String labelTextDelayTime {"TIME"};
+
+    // Feedback
+    static const juce::ParameterID paramIDFeedback {"feedback", 1};
+    static const juce::String paramNameFeedback {"Feedback"};
+    static const juce::String labelTextFeedback {"FEEDBACK"};
+    static constexpr float minFeedback {0.0f};
+    static constexpr float maxFeedback {100.0f};
+    static constexpr float defaultFeedback {50.0f};
+    static const juce::NormalisableRange<float> feedbackRange {minFeedback, maxFeedback, intervalDryWet};
 
     // Dry/wet
+    static const juce::ParameterID paramIDDryWet {"dryWet", 1};
+    static const juce::String paramNameDryWet {"Dry/Wet"};
+    static const juce::String labelTextDryWet {"DRY / WET"};
     static constexpr float minDryWet {0.0f};
     static constexpr float maxDryWet {100.0f};
     static constexpr float defaultDryWet {50.0f};
-    static const juce::ParameterID paramIDDryWet {"dryWet", 1};
-    static const juce::String paramNameDryWet {"Dry/Wet"};
     static const juce::NormalisableRange<float> dryWetRange {minDryWet, maxDryWet, intervalDryWet};
-    static const juce::String labelTextDryWet {"DRY / WET"};
 
     // SmoothedValue settings
     static constexpr float rampSmoothTime {0.0005f};
@@ -59,6 +68,7 @@ public:
     [[nodiscard]] float getOutputGainDB() { return m_smootherGain.getNextValue(); }
     [[nodiscard]] float getDelayTimeSeconds() const { return m_paramDelayTime->get() / 1000.0f; }
     [[nodiscard]] float getDryWetNormalised() { return m_smootherDryWet.getNextValue() / 100.0f; }  // Returns float between 0.0 and 1.0 to simplify DSP
+    [[nodiscard]] float getFeedback() const { return m_paramFeedback->get(); }
 
     // Parameter smoothing methods
     void prepare(double sampleRate) noexcept;
@@ -70,6 +80,7 @@ private:
     juce::AudioParameterFloat* m_paramOutGain {};
     juce::AudioParameterFloat* m_paramDelayTime {};
     juce::AudioParameterFloat* m_paramDryWet {};
+    juce::AudioParameterFloat* m_paramFeedback {};
 
     // Parameter smoothing
     juce::SmoothedValue<float> m_smootherGain {};

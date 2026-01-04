@@ -16,6 +16,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (DelayPluginPro
 
     feedbackGroup.setText("FEEDBACK");
     feedbackGroup.setTextLabelPosition(juce::Justification::centred);
+    feedbackGroup.addAndMakeVisible(dialFeedback);
     addAndMakeVisible(feedbackGroup);
 
     mixGroup.setText("MIX");
@@ -62,6 +63,9 @@ void AudioPluginAudioProcessorEditor::resized()
         Dimensions::groupWidth, Dimensions::groupHeight);
 
     dialOutGain.setBounds(mixGroup.getLocalBounds().getCentreX() - dialWidth / 2, mixGroup.getLocalBounds().getTopLeft().getY() + Dimensions::marginTop,
+        dialWidth, dialHeight);
+
+    dialFeedback.setBounds(feedbackGroup.getLocalBounds(). getCentreX() - dialWidth / 2, feedbackGroup.getLocalBounds().getTopLeft().getY() + Dimensions::marginTop,
         dialWidth, dialHeight);
 
     dialDryWet.setBounds(mixGroup.getLocalBounds().getCentreX() - dialWidth / 2, dialOutGain.getBottom() + Dimensions::marginTop,
